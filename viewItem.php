@@ -4,124 +4,80 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
-// Get all categories
+// Fetch all categories
 try {
-    $sql = "SELECT * FROM category";
-    $stmt = $conn->prepare($sql);
+    $stmt = $conn->prepare("SELECT * FROM category");
     $stmt->execute();
     $categories = $stmt->fetchAll();
 } catch (PDOException $e) {
     echo $e->getMessage();
 }
 
-// Get all products
+// Base query
+$sql = "SELECT 
+            p.product_id, 
+            p.product_name,
+            p.description, 
+            p.price,
+            p.img_path, 
+            p.quantity,
+            c.name AS category
+        FROM product p
+        JOIN category c ON p.category_id = c.category_id
+        WHERE 1=1";
+
+$params = [];
+
+// ✅ Apply Category Filter
+if (!empty($_GET['cateChoose'])) {
+    $sql .= " AND p.category_id = ?";
+    $params[] = $_GET['cateChoose'];
+}
+
+// ✅ Apply Price Filter
+if (isset($_GET['priceRange'])) {
+    switch ($_GET['priceRange']) {
+        case '0':
+            $sql .= " AND p.price BETWEEN 1 AND 100";
+            break;
+        case '1':
+            $sql .= " AND p.price BETWEEN 101 AND 200";
+            break;
+        case '2':
+            $sql .= " AND p.price BETWEEN 201 AND 300";
+            break;
+    }
+}
+
+// ✅ Apply Search Filter
+if (!empty($_GET['wSearch'])) {
+    $sql .= " AND p.product_name LIKE ?";
+    $params[] = '%' . trim($_GET['wSearch']) . '%';
+}
+
 try {
-    $sql = "SELECT 
-                p.product_id, 
-                p.product_name,
-                p.description, 
-                p.price,
-                p.img_path, 
-                p.quantity,
-                c.name AS category
-            FROM product p
-            JOIN category c ON p.category_id = c.category_id";
-
-    $stmt = $conn->query($sql);
-    $products = $stmt->fetchAll();  //  FIXED from $product to $products
-} catch (PDOException $e) {
-    echo $e->getMessage();
-}
-
-// Filter by category
-if (isset($_GET['cate'])) {
-    $cid = $_GET['cateChoose'];
-    try {
-        $sql = "SELECT 
-                    p.product_id, 
-                    p.product_name,
-                    p.description, 
-                    p.price,
-                    p.img_path, 
-                    p.quantity,
-                    c.name AS category
-                FROM product p
-                JOIN category c ON p.category_id = c.category_id
-                WHERE p.category_id = ?";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$cid]);
-        $products = $stmt->fetchAll();
-    } catch (PDOException $e) {
-        echo $e->getMessage();
-    }
-}
-
-// Filter by price range
-if (isset($_GET['priceRadio'])) {
-    $range = $_GET['priceRange'];
-    $lower = 0;
-    $upper = 0;
-    if ($range == 0) {
-        $lower = 1;
-        $upper = 100;
-    } else if ($range == 1) {
-        $lower = 101;
-        $upper = 200;
-    } else if ($range == 2) {
-        $lower = 201;
-        $upper = 300;
-    }
-
-    $sql = "SELECT 
-                p.product_id, 
-                p.product_name,
-                p.description, 
-                p.price,
-                p.img_path, 
-                p.quantity,
-                c.name AS category
-            FROM product p
-            JOIN category c ON p.category_id = c.category_id
-            WHERE p.price BETWEEN ? AND ?";
-
     $stmt = $conn->prepare($sql);
-    $stmt->execute([$lower, $upper]);
+    $stmt->execute($params);
     $products = $stmt->fetchAll();
+} catch (PDOException $e) {
+    echo "Error loading products: " . $e->getMessage();
 }
 
-if (isset($_GET['bSearch'])) {
-    $keyword =  $_GET['wSearch'];
-    try {
-        $sql = "select * from item where iname like ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute(["%" . $keyword . "%"]);
-        $items = $stmt->fetchAll();
-    } catch (PDOException $e) {
-        echo $e->getMessage();
-    }
-}
-
-// Delete product if 'did' (delete ID) is provided
+// ✅ Delete logic (optional, unchanged)
 if (isset($_GET['did'])) {
     $deleteId = $_GET['did'];
-
     try {
-        $sql = "DELETE FROM product WHERE product_id = ?";
-        $stmt = $conn->prepare($sql);
+        $stmt = $conn->prepare("DELETE FROM product WHERE product_id = ?");
         $stmt->execute([$deleteId]);
-
         $_SESSION['deleteSuccess'] = "Product deleted successfully!";
-        // Redirect to clear the URL
         header("Location: viewItem.php");
         exit;
     } catch (PDOException $e) {
         echo "Error deleting product: " . $e->getMessage();
     }
 }
-
-
 ?>
+
 
 
 <!DOCTYPE html>
@@ -194,10 +150,9 @@ if (isset($_GET['did'])) {
 
                     <form class="d-flex me-3 mx-4" method="get" action="viewItem.php">
                         <input class="form-control me-2" type="search" name="wSearch" placeholder="Search..." />
-                        <button class="btn btn-outline-success" type="submit" name="bSearch">
-                            🔍
-                        </button>
+                        <button class="btn btn-outline-success" type="submit" name="bSearch">🔍</button>
                     </form>
+
                 </div>
 
                 <?php
@@ -236,8 +191,8 @@ if (isset($_GET['did'])) {
                                     <td><?= $product['quantity'] ?></td>
                                     <td><img src="<?= htmlspecialchars($product['img_path']) ?>" style="width:80px; height:80px;" alt="Product Image"></td>
                                     <td>
-                                        <a class="btn btn-outline-primary btn-sm rounded-pill" href="editItem.php?eid=<?= $product['product_id'] ?>">Edit</a>
-                                        <a class="btn btn-outline-danger btn-sm rounded-pill"
+                                        <a class="btn btn-outline-primary btn-sm rounded-pill w-100 my-2" href="editItem.php?eid=<?= $product['product_id'] ?>">Edit</a>
+                                        <a class="btn btn-outline-danger btn-sm rounded-pill w-100"
                                             href="viewItem.php?did=<?= $product['product_id'] ?>"
                                             onclick="return confirm('Are you sure you want to delete this item?');">
                                             Delete

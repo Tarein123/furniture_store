@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     try {
         $conn->beginTransaction();
 
-        // ✅ Insert into orders (with or without user_id)
+        // ✅ Insert into orders
         $sql = "INSERT INTO orders (user_id, total_price, shipping_address, payment_type)
                 VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
@@ -63,7 +63,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $conn->commit();
         unset($_SESSION['cart']);
-        echo "<h4>✅ Order placed successfully!</h4><a href='viewtest.php'>Back to Shop</a>";
+
+        // ✅ Redirect to receipt page
+        header("Location: receipt.php?order_id=" . $order_id);
         exit();
     } catch (PDOException $e) {
         $conn->rollBack();
@@ -71,6 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>

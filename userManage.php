@@ -106,7 +106,7 @@ try {
                                         <td><?= $user['user_id'] ?></td>
                                         <td>
                                             <?php if ($user['profile_path']) : ?>
-                                                <img src="<?= htmlspecialchars($user['profile_path']) ?>" class="profile-thumb" alt="Profile">
+                                                <img src="user/<?= htmlspecialchars($user['profile_path']) ?>" width="50" height="50" style="object-fit: cover; border-radius: 50%;">
                                             <?php else : ?>
                                                 <span class="text-muted">N/A</span>
                                             <?php endif; ?>

@@ -42,7 +42,7 @@
                 <a href="dashboard.php">Dashboard</a>
                 <a href="viewItem.php">Product</a>
                 <a href="userManage.php">user</a>
-                <a href="#">Orders</a>
+                <a href="ordersManage.php">Orders</a>
                 <a href="#">Logout</a>
             </div>
 

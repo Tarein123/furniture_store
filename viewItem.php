@@ -102,6 +102,25 @@ if (isset($_GET['bSearch'])) {
     }
 }
 
+// Delete product if 'did' (delete ID) is provided
+if (isset($_GET['did'])) {
+    $deleteId = $_GET['did'];
+
+    try {
+        $sql = "DELETE FROM product WHERE product_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$deleteId]);
+
+        $_SESSION['deleteSuccess'] = "Product deleted successfully!";
+        // Redirect to clear the URL
+        header("Location: viewItem.php");
+        exit;
+    } catch (PDOException $e) {
+        echo "Error deleting product: " . $e->getMessage();
+    }
+}
+
+
 ?>
 
 
@@ -116,53 +135,70 @@ if (isset($_GET['bSearch'])) {
 
 <body class="bg-light">
     <div class="container-fluid">
-        <div class="row mt-3">
-            <div class="col-md-12">
-                <?php require_once "navbar.php" ?>
-            </div>
-        </div>
 
         <div class="row mt-3">
-            <!-- Filter Column -->
-            <div class="col-md-2 py-5">
-                <!-- Category Filter -->
-                <form action="viewItem.php" method="get" class="form border border-primary border-1 rounded">
-                    <select name="cateChoose" class="form-select">
-                        <option value="">Choose Category</option>
-                        <?php foreach ($categories as $category): ?>
-                            <option value="<?= $category['category_id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button class="mt-3 btn btn-sm btn-outline-primary rounded-pill" name="cate" type="submit">Submit</button>
-                </form>
 
-                <!-- Price Filter -->
-                <form action="viewItem.php" method="get" class="mt-5 form border border-primary border-1 rounded">
-                    <fieldset>
-                        <legend>
-                            <h6>Choose Price Range</h6>
-                        </legend>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="priceRange" value="0">
-                            <label class="form-check-label">$1–$100</label><br>
-                            <input class="form-check-input" type="radio" name="priceRange" value="1">
-                            <label class="form-check-label">$101–$200</label><br>
-                            <input class="form-check-input" type="radio" name="priceRange" value="2">
-                            <label class="form-check-label">$201–$300</label>
-                        </div>
-                        <button class="mt-3 btn btn-sm btn-outline-primary rounded-pill" name="priceRadio" type="submit">Submit</button>
-                    </fieldset>
-                </form>
-
-                <form method="GET" action="viewItem.php" class="d-flex mt-4">
-                    <button type="submit" class="btn btn-outline-secondary">Reset</button>
-                </form>
-
-            </div>
+            <?php require_once "sidebar.php" ?>
 
             <!-- Product List Column -->
-            <div class="col-md-10 mx-auto py-5 mb-2">
-                <div class="py-2"> <a class="btn btn-outline-primary" href="insertProduct.php">Add New Item</a></div>
+            <div class="col-md-10 mx-auto py-1 mb-2">
+
+                <!-- Category Filter -->
+                <form action="viewItem.php" method="get" class="border border-primary rounded p-3 mb-4">
+                    <div class="row g-3 align-items-center">
+
+                        <!-- Category Dropdown -->
+                        <div class="col-md-4">
+                            <label for="cateChoose" class="form-label fw-semibold">Category</label>
+                            <select name="cateChoose" id="cateChoose" class="form-select">
+                                <option value="">Choose Category</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?= $category['category_id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <!-- Price Range Radios -->
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold d-block">Price Range</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="priceRange" value="0" id="range1">
+                                <label class="form-check-label" for="range1">$1–$100</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="priceRange" value="1" id="range2">
+                                <label class="form-check-label" for="range2">$101–$200</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="priceRange" value="2" id="range3">
+                                <label class="form-check-label" for="range3">$201–$300</label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="col-md-3 text-end">
+                            <button type="submit" class="btn btn-outline-primary rounded-pill px-4" name="filterSubmit">
+                                Apply Filters
+                            </button>
+                            <form method="GET" action="viewItem.php" class="d-flex mt-4">
+                                <button type="submit" class="btn btn-outline-secondary">Reset</button>
+                            </form>
+
+                        </div>
+                    </div>
+                </form>
+
+
+                <div class="py-2 d-flex">
+                    <a class="btn btn-outline-primary" href="insertProduct.php">Add New Item</a>
+
+                    <form class="d-flex me-3 mx-4" method="get" action="viewItem.php">
+                        <input class="form-control me-2" type="search" name="wSearch" placeholder="Search..." />
+                        <button class="btn btn-outline-success" type="submit" name="bSearch">
+                            🔍
+                        </button>
+                    </form>
+                </div>
 
                 <?php
                 if (isset($_SESSION['insertSuccess'])) {
@@ -201,7 +237,11 @@ if (isset($_GET['bSearch'])) {
                                     <td><img src="<?= htmlspecialchars($product['img_path']) ?>" style="width:80px; height:80px;" alt="Product Image"></td>
                                     <td>
                                         <a class="btn btn-outline-primary btn-sm rounded-pill" href="editItem.php?eid=<?= $product['product_id'] ?>">Edit</a>
-                                        <a class="btn btn-outline-danger btn-sm rounded-pill" href="editItem.php?did=<?= $product['product_id'] ?>">Delete</a>
+                                        <a class="btn btn-outline-danger btn-sm rounded-pill"
+                                            href="viewItem.php?did=<?= $product['product_id'] ?>"
+                                            onclick="return confirm('Are you sure you want to delete this item?');">
+                                            Delete
+                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -218,4 +258,3 @@ if (isset($_GET['bSearch'])) {
 </body>
 
 </html>
-

@@ -8,8 +8,8 @@
 
     <div class="collapse navbar-collapse" id="mainNavbar">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3">
-        <li class="nav-item"><a class="nav-link" href="../index1.php">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="user/viewtest.php">Shop</a></li>
+        <li class="nav-item"><a class="nav-link" href="index1.php">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="viewtest.php">Shop</a></li>
         <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
         <li class="nav-item"><a class="nav-link" href="#">About</a></li>
         <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>

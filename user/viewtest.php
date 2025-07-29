@@ -183,11 +183,11 @@ $cartCount = getCartCount();
                         <div class="container d-flex flex-wrap gap-3 justify-content-left">
                             <a href="viewtest.php" class="btn btn-sm btn-outline-dark">All</a>
                             <a href="viewtest.php?cateName=Bed%20Room" class="btn btn-sm btn-outline-dark">Bed</a>
-                            <a href="viewItem.php?cateName=Dining%20Room" class="btn btn-sm btn-outline-dark">Dining</a>
+                            <a href="viewtest.php?cateName=Dining%20Room" class="btn btn-sm btn-outline-dark">Dining</a>
                             <a href="viewtest.php?cateName=Living%20Room" class="btn btn-sm btn-outline-dark">Living</a>
-                            <a href="viewItem.php?cateName=Outdoor" class="btn btn-sm btn-outline-dark">Outdoor</a>
-                            <a href="viewItem.php?cateName=Office" class="btn btn-sm btn-outline-dark">Office</a>
-                            <a href="viewItem.php?cateName=Kitchen" class="btn btn-sm btn-outline-dark">Kitchen</a>
+                            <a href="viewtest.php?cateName=Outdoor" class="btn btn-sm btn-outline-dark">Outdoor</a>
+                            <a href="viewtest.php?cateName=Office" class="btn btn-sm btn-outline-dark">Office</a>
+                            <a href="viewtest.php?cateName=Kitchen" class="btn btn-sm btn-outline-dark">Kitchen</a>
                         </div>
                         <?php $cartCount = getCartCount(); ?>
                         <div class="d-flex justify-content-end align-items-center me-4 position-relative">
@@ -241,7 +241,7 @@ $cartCount = getCartCount();
                 </div>
 
 
-                <div class="col-md-10 mx-auto py-5 mb-2">
+                <div class="col-md-10 mx-auto py-4 mb-2">
 
 
                     <?php

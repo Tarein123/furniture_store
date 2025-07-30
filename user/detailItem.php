@@ -20,14 +20,17 @@ if (isset($_GET['id'])) {
     echo "No product selected.";
     exit;
 }
-?>
-<!-- Then show the product info in HTML -->
 
-<!-- <img src="../<?= $product['img_path'] ?>" style="width:150px">
-<h1><?= $product['product_name'] ?></h1>
-<p><?= $product['description'] ?></p>
-<p>Category: <?= $product['category'] ?></p>
-<p>Price: $<?= $product['price'] ?></p> -->
+// add to cart
+function getCartCount()
+{
+    if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+        return array_sum($_SESSION['cart']);
+    }
+    return 0;
+}
+$cartCount = getCartCount();
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -39,109 +42,155 @@ if (isset($_GET['id'])) {
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .product-wrapper {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .product-image {
-            width: 400px;
-            height: 500px;
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
             border-radius: 10px;
         }
 
         .accordion-button {
-            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+        }
+
+        .form-control {
+            max-width: 80px;
+        }
+
+        @media (max-width: 768px) {
+            .product-wrapper {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container py-5">
-        <div class="row g-5">
+    <?php require_once "cnavbar.php" ?>
 
-            <!-- Left Side: Image -->
-            <div class="col-md-6 text-center">
-                <img src="../<?= $product['img_path'] ?>" alt="<?= $product['product_name'] ?>" class="product-image shadow">
-                <a href="viewtest.php" class="btn btn-outline-secondary mt-3 ms-2">Back to Products</a>
+    <!-- CATEGORY FILTER BAR -->
+    <div class="d-flex bg-light shadow-sm py-1">
+        <div class="container d-flex flex-wrap gap-3 justify-content-left">
+            <a href="viewtest.php" class="btn btn-sm btn-outline-dark">All</a>
+            <a href="viewtest.php?cateName=Bed%20Room" class="btn btn-sm btn-outline-dark">Bed</a>
+            <a href="viewtest.php?cateName=Dining%20Room" class="btn btn-sm btn-outline-dark">Dining</a>
+            <a href="viewtest.php?cateName=Living%20Room" class="btn btn-sm btn-outline-dark">Living</a>
+            <a href="viewtest.php?cateName=Outdoor" class="btn btn-sm btn-outline-dark">Outdoor</a>
+            <a href="viewtest.php?cateName=Office" class="btn btn-sm btn-outline-dark">Office</a>
+            <a href="viewtest.php?cateName=Kitchen" class="btn btn-sm btn-outline-dark">Kitchen</a>
+        </div>
 
-            </div>
+        <?php $cartCount = getCartCount(); ?>
+        <div class="d-flex justify-content-end align-items-center me-4 position-relative">
+            <a href="viewCart.php">
+                <img src="../images/cart3.png" alt="view cart" style="width: 32px; height: 32px;">
+                <?php if ($cartCount > 0): ?>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        <?= $cartCount ?>
+                    </span>
+                <?php endif; ?>
+            </a>
+        </div>
+    </div>
 
-            <!-- Right Side: Details -->
-            <div class="col-md-6">
-                <h2 class="fw-bold"><?= $product['product_name'] ?></h2>
-                <p class="h5 text-muted">$<?= number_format($product['price'], 2) ?></p>
-
-                <p class="text-secondary small">
-                    ★★★★★ <span class="ms-2">(8 Reviews)</span>
-                </p>
-
-                <p class="text-muted fst-italic">100% raw, unrefined, organic & cruelty-free. 200 ML</p>
-
-                <p><?= $product['description'] ?></p>
-
-                <!-- Quantity & Add to Cart -->
-                <div class="d-flex align-items-center my-4">
-                    <label for="qty" class="me-2">Quantity</label>
-                    <input type="number" id="qty" name="qty" min="1" value="1" class="form-control w-25 me-3">
-                    <button class="btn btn-dark">ADD TO CART</button>
+    <div class="container py-4 mt-2">
+        <div class="product-wrapper">
+            <div class="row g-4">
+                <!-- Image -->
+                <div class="col-md-5 text-center">
+                    <img src="../<?= $product['img_path'] ?>" alt="<?= $product['product_name'] ?>" class="product-image mb-3">
+                    <a href="viewtest.php" class="btn btn-sm btn-outline-secondary">← Back</a>
                 </div>
 
-                <!-- Accordion Sections -->
-                <div class="accordion" id="productAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingOne">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                                Ingredients
-                            </button>
-                        </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#productAccordion">
-                            <div class="accordion-body">
-                                <?= $product['ingredients'] ?? 'Pure Coconut Oil' ?>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Details -->
+                <div class="col-md-7">
+                    <h4 class="fw-semibold mb-2"><?= $product['product_name'] ?></h4>
+                    <p class="text-muted mb-2">$<?= number_format($product['price'], 2) ?></p>
 
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingTwo">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                                Watch Video
-                            </button>
-                        </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#productAccordion">
-                            <div class="accordion-body">
-                                <a href="#">Click here to watch product video.</a>
-                            </div>
-                        </div>
-                    </div>
+                    <p class="small text-body mb-3"><?= $product['description'] ?></p>
 
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingThree">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
-                                Benefits & How To Use
-                            </button>
-                        </h2>
-                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#productAccordion">
-                            <div class="accordion-body">
-                                Apply a small amount to hair or skin. Use daily for best results.
-                            </div>
-                        </div>
-                    </div>
+                    <form action="addToCart.php" method="get" class="d-inline">
+                        <input type="hidden" name="productID" value="<?= $product['product_id'] ?>">
+                        <input type="hidden" name="qty" value="1">
+                        <button type="submit" name="addCart" class="btn btn-outline-secondary btn-dark btn-sm rounded-pill px-3" style="color: white;">
+                            Add to Cart
+                        </button>
+                    </form>
 
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingFour">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
-                                Why Love Hair Coconut Oil
-                            </button>
-                        </h2>
-                        <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#productAccordion">
-                            <div class="accordion-body">
-                                Cold-pressed, non-greasy, quick absorbing, and safe for all skin types.
+                    <!-- Accordion Info -->
+                    <div class="accordion accordion-flush" id="productAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                    Materials & Finish
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#productAccordion">
+                                <div class="accordion-body small">
+                                    <?= $product['materials'] ?? 'Solid Wood, High-Quality Fabric, Premium Coating' ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                    Assembly Guide / Video
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#productAccordion">
+                                <div class="accordion-body small">
+                                    <a href="#" style="text-decoration: none; color: black;">Watch our simple setup video</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                    Features & Usage
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#productAccordion">
+                                <div class="accordion-body small">
+                                    Comfortable seating, scratch-resistant surface, easy to clean. Perfect for everyday use.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
+                                    Why You'll Love This
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#productAccordion">
+                                <div class="accordion-body small">
+                                    Built to last with a stylish modern aesthetic. Enhances your home or office ambiance.
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- End Accordion -->
                 </div>
             </div>
         </div>
     </div>
+
+    <?php require_once "footer.php" ?>
 
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

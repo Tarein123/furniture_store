@@ -8,7 +8,7 @@ if (isset($_SESSION['delete_success'])) {
     unset($_SESSION['delete_success']);
 }
 
-// Handle deletion (prevent deleting logged-in user)
+// Handle deletion
 if (isset($_GET['delete_id'])) {
     $deleteId = $_GET['delete_id'];
 

@@ -27,9 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = $_POST['email'] ?? '';
     $address = $_POST['address'] ?? '';
     $payment_type = $_POST['payment_type'] ?? 'Cash on Delivery';
-
     $total_price = 0;
-
     foreach ($cart as $product_id => $qty) {
         $stmt = $conn->prepare("SELECT price FROM product WHERE product_id = ?");
         $stmt->execute([$product_id]);
@@ -38,17 +36,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $total_price += $product['price'] * $qty;
         }
     }
-
     try {
         $conn->beginTransaction();
-
-        // ✅ Insert into orders
+        // Insert into orders
         $sql = "INSERT INTO orders (user_id, total_price, shipping_address, payment_type)
                 VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$user_id, $total_price, $address, $payment_type]);
         $order_id = $conn->lastInsertId();
-
         // Insert into order_details
         foreach ($cart as $product_id => $qty) {
             $stmt = $conn->prepare("SELECT price FROM product WHERE product_id = ?");
@@ -60,11 +55,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $stmt->execute([$order_id, $product_id, $qty, $product['price']]);
             }
         }
-
         $conn->commit();
         unset($_SESSION['cart']);
-
-        // ✅ Redirect to receipt page
+        // Redirect to receipt page
         header("Location: receipt.php?order_id=" . $order_id);
         exit();
     } catch (PDOException $e) {
@@ -85,70 +78,83 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 
-<body class="container mt-5">
-    <h2>Guest Checkout</h2>
-    <form method="post">
-        <div class="mb-3">
-            <label class="form-label">Name</label>
-            <input name="name" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input name="email" type="email" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Shipping Address</label>
-            <textarea name="address" class="form-control" required></textarea>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Payment Type</label>
-            <select name="payment_type" class="form-select" required>
-                <option value="Cash on Delivery">Cash on Delivery</option>
-                <option value="Credit Card">Credit Card</option>
-                <option value="Paypal">Paypal</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-            </select>
-        </div>
+<body>
 
-        <h5>Order Summary</h5>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Qty</th>
-                    <th>Price</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $grandTotal = 0;
-                foreach ($cart as $product_id => $qty) {
-                    $stmt = $conn->prepare("SELECT product_name, price FROM product WHERE product_id = ?");
-                    $stmt->execute([$product_id]);
-                    $product = $stmt->fetch();
-                    if ($product) {
-                        $subtotal = $product['price'] * $qty;
-                        $grandTotal += $subtotal;
-                        echo "<tr>
-                                <td>{$product['product_name']}</td>
-                                <td>$qty</td>
-                                <td>$ {$product['price']}</td>
-                                <td>$ " . number_format($subtotal, 2) . "</td>
-                              </tr>";
-                    }
-                }
-                ?>
-                <tr>
-                    <td colspan="3" class="text-end fw-bold">Total</td>
-                    <td class="fw-bold">$ <?= number_format($grandTotal, 2) ?></td>
-                </tr>
-            </tbody>
-        </table>
+    <?php require_once "cnavbar.php"; ?>
 
-        <button type="submit" class="btn btn-success">Place Order</button>
-        <a href="viewCart.php" class="btn btn-secondary">Back to Cart</a>
-    </form>
+    <div class="container mt-2">
+        <div class="mx-auto" style="max-width: 600px;">
+            <h3 class="text-center mb-3">Guest Checkout</h3>
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input name="name" class="form-control form-control-sm" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Email</label>
+                    <input name="email" type="email" class="form-control form-control-sm" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Shipping Address</label>
+                    <textarea name="address" class="form-control form-control-sm" required></textarea>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Payment Type</label>
+                    <select name="payment_type" class="form-select form-select-sm" required>
+                        <option value="Cash on Delivery">Cash on Delivery</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Paypal">Paypal</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                </div>
+
+                <h5 class="mt-4">Order Summary</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $grandTotal = 0;
+                            foreach ($cart as $product_id => $qty) {
+                                $stmt = $conn->prepare("SELECT product_name, price FROM product WHERE product_id = ?");
+                                $stmt->execute([$product_id]);
+                                $product = $stmt->fetch();
+                                if ($product) {
+                                    $subtotal = $product['price'] * $qty;
+                                    $grandTotal += $subtotal;
+                                    echo "<tr>
+                                    <td>{$product['product_name']}</td>
+                                    <td>$qty</td>
+                                    <td>$ {$product['price']}</td>
+                                    <td>$ " . number_format($subtotal, 2) . "</td>
+                                </tr>";
+                                }
+                            }
+                            ?>
+                            <tr>
+                                <td colspan="3" class="text-end fw-bold">Total</td>
+                                <td class="fw-bold">$ <?= number_format($grandTotal, 2) ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-between mt-3">
+                    <a href="viewCart.php" class="btn btn-secondary btn-sm">Back to Cart</a>
+
+                    <button type="submit" class="btn btn-success btn-sm">Place Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </body>
 
 </html>

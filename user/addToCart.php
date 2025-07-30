@@ -15,9 +15,8 @@ if (isset($_GET['productID'])) {
         $_SESSION['cart'][$id] = $qty;
     }
 
-    // Redirect back
-    header("Location: viewtest.php");
+    // Redirect back to where user came from
+    $redirectBack = $_SERVER['HTTP_REFERER'] ?? 'viewtest.php';
+    header("Location: $redirectBack");
     exit;
 }
-?>
-

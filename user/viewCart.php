@@ -34,6 +34,9 @@ if (isset($_SESSION['cart']) && count($_SESSION['cart']) > 0) {
 </head>
 
 <body class="bg-light">
+
+    <?php require_once "cnavbar.php"; ?>
+
     <div class="container py-5">
         <h2 class="mb-4">Your Shopping Cart</h2>
 

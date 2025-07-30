@@ -53,7 +53,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="col-md-6 mb-4">
                         <div class="card shadow-sm h-100" style="font-size: 0.9rem;">
                             <div class="card-header bg-light py-2">
-                                <strong>Order #<?= $order['order_id'] ?></strong> <br>
+                                <strong>Order ID #<?= $order['order_id'] ?></strong> <br>
                                 <small class="text-muted"><?= $order['order_date'] ?></small>
                             </div>
                             <div class="card-body py-2 px-3">

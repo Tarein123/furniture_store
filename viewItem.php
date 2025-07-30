@@ -28,13 +28,13 @@ $sql = "SELECT
 
 $params = [];
 
-// ✅ Apply Category Filter
+//  Apply Category Filter
 if (!empty($_GET['cateChoose'])) {
     $sql .= " AND p.category_id = ?";
     $params[] = $_GET['cateChoose'];
 }
 
-// ✅ Apply Price Filter
+//  Apply Price Filter
 if (isset($_GET['priceRange'])) {
     switch ($_GET['priceRange']) {
         case '0':
@@ -49,7 +49,6 @@ if (isset($_GET['priceRange'])) {
     }
 }
 
-// ✅ Apply Search Filter
 if (!empty($_GET['wSearch'])) {
     $sql .= " AND p.product_name LIKE ?";
     $params[] = '%' . trim($_GET['wSearch']) . '%';
@@ -63,7 +62,7 @@ try {
     echo "Error loading products: " . $e->getMessage();
 }
 
-// ✅ Delete logic (optional, unchanged)
+//  Delete logic (optional, unchanged)
 if (isset($_GET['did'])) {
     $deleteId = $_GET['did'];
     try {
@@ -76,6 +75,18 @@ if (isset($_GET['did'])) {
         echo "Error deleting product: " . $e->getMessage();
     }
 }
+
+if (isset($_SESSION['insertSuccess'])) {
+    echo "<p class='alert alert-success'>$_SESSION[insertSuccess]</p>";
+    unset($_SESSION['insertSuccess']);
+} elseif (isset($_SESSION['updateSuccess'])) {
+    echo "<p class='alert alert-success'>$_SESSION[updateSuccess]</p>";
+    unset($_SESSION['updateSuccess']);
+} elseif (isset($_SESSION['deleteSuccess'])) {
+    echo "<p class='alert alert-success'>$_SESSION[deleteSuccess]</p>";
+    unset($_SESSION['deleteSuccess']);
+}
+
 ?>
 
 
@@ -154,19 +165,6 @@ if (isset($_GET['did'])) {
                     </form>
 
                 </div>
-
-                <?php
-                if (isset($_SESSION['insertSuccess'])) {
-                    echo "<p class='alert alert-success'>$_SESSION[insertSuccess]</p>";
-                    unset($_SESSION['insertSuccess']);
-                } elseif (isset($_SESSION['updateSuccess'])) {
-                    echo "<p class='alert alert-success'>$_SESSION[updateSuccess]</p>";
-                    unset($_SESSION['updateSuccess']);
-                } elseif (isset($_SESSION['deleteSuccess'])) {
-                    echo "<p class='alert alert-success'>$_SESSION[deleteSuccess]</p>";
-                    unset($_SESSION['deleteSuccess']);
-                }
-                ?>
 
                 <table class="table table-striped">
                     <thead>

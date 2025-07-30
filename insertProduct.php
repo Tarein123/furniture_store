@@ -59,9 +59,6 @@ if (isset($_POST['insertItem'])) {
 <body>
     <div class="container-fluid">
         <div class="row">
-            <?php require_once "navbar.php"; ?>
-        </div>
-        <div class="row">
             <div class="col-md-6 mx-auto">
                 <form class="form mt-2 pt-2" enctype="multipart/form-data" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
                     <fieldset>

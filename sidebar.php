@@ -40,10 +40,10 @@
             <div class="col-md-2 sidebar">
                 <h4 class="text-center">Admin</h4>
                 <a href="dashboard.php">Dashboard</a>
-                <a href="viewItem.php">Product</a>
-                <a href="userManage.php">user</a>
-                <a href="ordersManage.php">Orders</a>
-                <a href="#">Logout</a>
+                <a href="viewItem.php">Manage Products</a>
+                <a href="userManage.php">Manage Users</a>
+                <a href="ordersManage.php">Manage Orders</a>
+                <a href="logout.php">Logout</a>
             </div>
 
 

@@ -3,38 +3,43 @@ require_once "db.php";
 if (!isset($_SESSION)) {
     session_start();
 }
-
 // checking whether login button is clicked
 if (isset($_POST['customerLogin'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
-
     try {
-        $sql = "select email, password from user where email=?";
+        $sql = "SELECT user_id, email, password, role, profile_path FROM user WHERE email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$email]);
-        $userInfo = $stmt->fetch();
+        $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$userInfo) {
-            $message = "Username or password might be incorrect. ";
+            $message = "Username or password might be incorrect.";
         } else {
             if (password_verify($password, $userInfo['password'])) {
-                $_SESSION['customerEmail'] = $email;
+                // Set session variables
+                $_SESSION['customerEmail'] = $userInfo['email'];
                 $_SESSION['clogin'] = true;
                 $_SESSION['profile'] = $userInfo['profile_path'];
-                $_SESSION['userId'] = $userInfo['userid'];
-                
-
-                // echo "session variable set";
-                header("Location:viewtest.php");
+                $_SESSION['userId'] = $userInfo['user_id'];
+                $_SESSION['role'] = $userInfo['role'];
+                // Redirect based on role
+                if ($userInfo['role'] === 'admin') {
+                    header("Location: ../dashboard.php");
+                } else {
+                    header("Location: index1.php");
+                }
+                exit();
             } else {
-
-                $message = "Username or password might be incorrect. ";
+                $message = "Username or password might be incorrect.";
             }
         }
     } catch (PDOException $e) {
         echo $e->getMessage();
     }
 }
+
+
+
 
 
 

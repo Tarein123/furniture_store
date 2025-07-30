@@ -12,9 +12,6 @@ try {
     echo $e->getMessage();
 }
 
-
-
-
 try {
     $sql = "select p.product_id, p.product_name,
 		p.price, p.description,
@@ -32,26 +29,7 @@ try {
 }
 
 
-if (isset($_GET['cate'])) {
-    $cid = $_GET['cateChoose'];
-    try {
-        //
-        $sql = "select p.product_id, p.product_name,
-            p.price, p.description,
-            p.quantity, p.img_path,
-            c.name as category
-            from product p, category c 
-            where p.category_id = c.category_id
-            and  c.category_id=?";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$category_id]);
-        $products = $stmt->fetchAll();
-    } catch (PDOException $e) {
-        echo $e->getMessage();
-    }
-} // end if of category selection
-
+// filter by price
 if (isset($_GET['priceRadio'])) {
     $range = $_GET['priceRange'];
     $sql = "select p.product_id, p.product_name,
@@ -78,19 +56,7 @@ if (isset($_GET['priceRadio'])) {
     $stmt->execute([$lower, $upper]);
     $products = $stmt->fetchAll();
 }
-if (isset($_GET['bSearch'])) {
-    $keyword =  $_GET['wSearch'];
-    try {
-        $sql = "select * from product where name like ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute(["%" . $keyword . "%"]);
-        $products = $stmt->fetchAll();
-    } catch (PDOException $e) {
-        echo $e->getMessage();
-    }
-}
 
-$_SESSION['products'] = $products;
 
 // Category name-based filtering (e.g., from 'cateName=Living Room')
 if (isset($_GET['cateName'])) {
@@ -117,8 +83,6 @@ function getCartCount()
 }
 $cartCount = getCartCount();
 
-
-
 ?>
 
 <?php if (isset($_SESSION['customerEmail']) && isset($_SESSION['clogin'])) { ?>
@@ -138,34 +102,10 @@ $cartCount = getCartCount();
                 font-family: 'Inter', sans-serif;
             }
         </style>
-        <!-- <script>
-            function decrease(btn) {
-                const form = btn.closest("form");
-                const qtyInput = form.querySelector("[name='qty']");
-                let qty = parseInt(qtyInput.value) || 0;
-                if (qty > 0)
-                    qty--;
-                qtyInput.value = qty;
-
-            }
-
-            function increase(btn) {
-                const form = btn.closest("form");
-                const qtyInput = form.querySelector("[name='qty']");
-                let qty = parseInt(qtyInput.value) || 0;
-                if (qty < 10)
-                    qty++;
-                qtyInput.value = qty;
-
-            }
-        </script> -->
 
 
 
     </head>
-    <!-- 
-
--->
 
     <body class="text-dark bg-opacity-50">
 
@@ -173,14 +113,13 @@ $cartCount = getCartCount();
 
         <div class="container-fluid">
 
+            <!-- CATEGORY FILTER BAR -->
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-12">
+                    <div class="d-flex flex-wrap bg-light shadow-sm py-2 px-3 justify-content-between align-items-center">
 
-
-
-                    <!-- CATEGORY FILTER BAR -->
-                    <div class="d-flex bg-light shadow-sm py-1">
-                        <div class="container d-flex flex-wrap gap-3 justify-content-left">
+                        <!-- Category Buttons -->
+                        <div class="d-flex flex-wrap gap-2">
                             <a href="viewtest.php" class="btn btn-sm btn-outline-dark">All</a>
                             <a href="viewtest.php?cateName=Bed%20Room" class="btn btn-sm btn-outline-dark">Bed</a>
                             <a href="viewtest.php?cateName=Dining%20Room" class="btn btn-sm btn-outline-dark">Dining</a>
@@ -189,10 +128,11 @@ $cartCount = getCartCount();
                             <a href="viewtest.php?cateName=Office" class="btn btn-sm btn-outline-dark">Office</a>
                             <a href="viewtest.php?cateName=Kitchen" class="btn btn-sm btn-outline-dark">Kitchen</a>
                         </div>
-                        <?php $cartCount = getCartCount(); ?>
-                        <div class="d-flex justify-content-end align-items-center me-4 position-relative">
+
+                        <!-- Cart Icon -->
+                        <div class="position-relative ms-auto">
                             <a href="viewCart.php">
-                                <img src="profile/cart2.png" alt="view cart" style="width: 30px; height: 30px;">
+                                <img src="../images/cart3.png" alt="view cart" style="width: 32px; height: 32px;">
                                 <?php if ($cartCount > 0): ?>
                                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                         <?= $cartCount ?>
@@ -202,103 +142,84 @@ $cartCount = getCartCount();
                         </div>
 
                     </div>
-
-
                 </div>
             </div>
-        </div>
-        <div class="container-fluid">
-            <div class="row mt-3">
-                <div class="col-md-2 py-4">
-                    <div class="card shadow-sm p-3 mb-3">
+
+            <!-- FILTER + PRODUCTS -->
+            <div class="row mt-4">
+
+                <!-- Sidebar Filter -->
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <div class="card shadow-sm p-3">
                         <form method="get" action="viewtest.php">
                             <h5 class="mb-3">Filter</h5>
 
-                            <!-- Price Filter -->
-                            <form action="viewItem.php" method="get" class="mt-5 form border border-primary border-1 rounded">
-                                <fieldset>
-                                    <legend>
-                                        <h6>Choose Price Range</h6>
-                                    </legend>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="priceRange" value="0">
-                                        <label class="form-check-label">$1–$100</label><br>
-                                        <input class="form-check-input" type="radio" name="priceRange" value="1">
-                                        <label class="form-check-label">$101–$200</label><br>
-                                        <input class="form-check-input" type="radio" name="priceRange" value="2">
-                                        <label class="form-check-label">$201–$300</label>
-                                    </div>
-                                    <button class="mt-3 btn btn-success" name="priceRadio" type="submit">Apply Filters</button>
-                                </fieldset>
-                            </form>
+                            <fieldset class="border p-2 rounded">
+                                <legend class="small fw-semibold">Choose Price Range</legend>
 
-                            <!-- Filter & Reset -->
-                            <div class="d-grid gap-2">
-                                <a href="viewtest.php" class="btn btn-outline-secondary mt-3">Reset</a>
-                            </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="priceRange" value="0" id="range1">
+                                    <label class="form-check-label" for="range1">$1–$100</label>
+                                </div>
+
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="priceRange" value="1" id="range2">
+                                    <label class="form-check-label" for="range2">$101–$200</label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="priceRange" value="2" id="range3">
+                                    <label class="form-check-label" for="range3">$201–$300</label>
+                                </div>
+
+                                <button class="btn btn-success btn-sm w-100 mt-3" type="submit">Apply Filter</button>
+                                <a href="viewtest.php" class="btn btn-outline-secondary btn-sm w-100 mt-2">Reset</a>
+                            </fieldset>
                         </form>
                     </div>
                 </div>
 
+                <!-- Products Grid -->
+                <div class="col-lg-9 col-md-8">
+                    <div class="row">
 
-                <div class="col-md-10 mx-auto py-4 mb-2">
+                        <?php if (isset($products)): ?>
+                            <?php foreach ($products as $product): ?>
+                                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                                    <div class="card text-center shadow-sm rounded-4 p-3 h-100">
 
+                                        <a href="detailItem.php?id=<?= $product['product_id'] ?>">
+                                            <img src="../<?= $product['img_path'] ?>" class="img-fluid rounded mb-3" style="height: 180px; object-fit: contain;" alt="<?= $product['product_name'] ?>">
+                                            <div class="content">
+                                                <h6 class="text-primary small">View Detail</h6>
+                                            </div>
+                                        </a>
 
-                    <?php
-                    if (isset($products)) {
-                        echo "<div class=row>";
-                        foreach ($products as $product) { ?>
-                            <div class="col-md-3 mb-4">
+                                        <h6 class="fw-semibold"><?= $product['product_name'] ?></h6>
 
-                                <div class="card text-center shadow-sm rounded-4 p-3 h-100">
+                                        <div class="mb-3 text-muted">$<?= number_format($product['price'], 2) ?></div>
 
-
-
-                                    <!-- Product Image -->
-                                    <a href="detailItem.php?id=<?= $product['product_id'] ?>">
-                                        <img src="../<?= $product['img_path'] ?>" class="img-fluid rounded mb-3" style="height: 180px; object-fit: contain;" alt="<?= $product['product_name'] ?>">
-                                        <div class="content">
-                                            <h3>view detail</h3>
-                                        </div>
-                                    </a>
-
-                                    <!-- Product Name -->
-                                    <h6 class="fw-semibold"><?= $product['product_name'] ?></h6>
-
-                                    <!-- Price and Quantity -->
-                                    <div class="d-flex justify-content-center align-items-center mb-3 gap-2">
-                                        <span class="text-muted">$<?= number_format($product['price'], 2) ?></span>
-
-                                    </div>
-
-                                    <!-- Buttons -->
-                                    <div class="d-flex justify-content-center gap-2">
-
-
-                                        <form action="addToCart.php" method="get" class="d-inline">
+                                        <form action="addToCart.php" method="get">
                                             <input type="hidden" name="productID" value="<?= $product['product_id'] ?>">
                                             <input type="hidden" name="qty" value="1">
-                                            <button type="submit" name="addCart" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                                                 Add to Cart
                                             </button>
                                         </form>
                                     </div>
-
-
                                 </div>
-                            </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
 
-                    <?php }
-
-                        echo "</div>";
-                    }
-
-                    ?>
-
+                    </div>
                 </div>
 
             </div>
         </div>
+
+
+        <?php require_once "footer.php" ?>
+
         <style>
             .card:hover {
                 transform: scale(1.03);

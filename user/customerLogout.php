@@ -6,7 +6,7 @@ if(!$_SESSION)
 
 session_destroy();
 
-header("Location:customerLogin.php");
+header("Location:index1.php");
 
 
 ?>

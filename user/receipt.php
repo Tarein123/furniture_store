@@ -41,9 +41,9 @@ $orderItems = $stmt->fetchAll();
 </head>
 
 <body class="bg-light">
-    <!-- Inside your <body> -->
-    <div class="container py-3 d-flex justify-content-center">
-        <div class="card p-3 shadow-sm" style="max-width: 700px; width: 100%; font-size: 0.9rem;">
+
+    <div class="container py-3 d-flex justify-content-center mt-5">
+        <div class="card p-3 shadow-sm mt-5" style="max-width: 700px; width: 100%; font-size: 0.9rem;">
             <h2 class="text-center mb-3">Order Receipt</h2>
 
             <div class="row mb-3">
@@ -95,7 +95,7 @@ $orderItems = $stmt->fetchAll();
             </table>
 
             <div class="text-center mt-3">
-                <a href="viewItem.php" class="btn btn-success btn-sm px-4">Continue Shopping</a>
+                <a href="viewtest.php" class="btn btn-success btn-sm px-4">Continue Shopping</a>
                 <button onclick="window.print()" class="btn btn-outline-primary btn-sm px-4">Print</button>
             </div>
         </div>

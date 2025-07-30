@@ -88,9 +88,7 @@ if (isset($_POST['updateItem'])) {
 
 <body class="bg-light">
     <div class="container-fluid">
-        <div class="row">
-            <?php require_once "navbar.php"; ?>
-        </div>
+        
         <div class="row">
             <div class="col-md-6 mx-auto mt-3">
                 <form class="form" enctype="multipart/form-data" method="post" action="">
